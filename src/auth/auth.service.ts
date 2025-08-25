@@ -11,7 +11,9 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
-        private readonly jwtService: JwtService) { }
+        private readonly jwtService: JwtService) {
+    }
+
 
     private async hashPassword(password: string) {
         return bcrypt.hash(password, 10);
@@ -21,7 +23,7 @@ export class AuthService {
         return bcrypt.compare(plainPassword, hashPassword);
     }
 
-    private async generateAccesstoken(user: User) {
+    private generateAccesstoken(user: User) {
         const payload = {
             email: user.email,
             sub: user.id,
@@ -33,7 +35,7 @@ export class AuthService {
         })
     }
 
-    private async generateRefreshToken(user: User) {
+    private generateRefreshToken(user: User) {
         const payload = {
             sub: user.id,
         }
@@ -100,6 +102,27 @@ export class AuthService {
             result,
             message: "Registration Successful"
         }
+    }
+
+    async registerAdmin(registerDto: RegisterDto) {
+        const existingAdmin = await this.userRepository.findOne({
+            where: {
+                email: registerDto.email
+            }
+        })
+
+        if (existingAdmin) {
+            throw new ConflictException("Admin With this email already exists");
+        }
+
+        const hashedPassword = await this.hashPassword(registerDto.password);
+        const admin = this.userRepository.create({
+            email: registerDto.email,
+            password: hashedPassword,
+            role: UserRole.ADMIN
+        })
+
+        return this.userRepository.save(admin);
     }
 
 

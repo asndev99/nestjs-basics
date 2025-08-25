@@ -5,6 +5,7 @@ import { Post } from './entities/post.entity';
 import { CreatePostDto } from './dto/createpost.dto';
 import { UpdatePostDto } from './dto/updatepost.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class PostService {
@@ -32,23 +33,30 @@ export class PostService {
         return post;
     }
 
-    create(createPostPayload: CreatePostDto): Promise<Post> {
+    create(createPostPayload: CreatePostDto, user: User): Promise<Post> {
         const newPost = this.postRepository.create({
-            authorName: createPostPayload.authorName,
             content: createPostPayload.content,
-            title: createPostPayload.title
+            title: createPostPayload.title,
+            author: user
         })
         return this.postRepository.save(newPost);
     }
 
-    async update(id: number, updatePostPayload: UpdatePostDto) {
-        const exist = await this.findOne(id);
+    async update(id: number, updatePostPayload: UpdatePostDto, user: User) {
+        const exist = await this.postRepository.findOne({
+            where: {
+                id,
+                author: {
+                    id:user.id
+                }
+            }
+        });
+
+        if (!exist) {
+            throw new NotFoundException("Post Not Found to update");
+        }
         if (updatePostPayload.title) {
             exist.title = updatePostPayload.title;
-        }
-
-        if (updatePostPayload.authorName) {
-            exist.authorName = updatePostPayload.authorName;
         }
 
         if (updatePostPayload.content) {
