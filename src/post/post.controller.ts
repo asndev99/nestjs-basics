@@ -9,6 +9,8 @@ import { User, UserRole } from 'src/auth/entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
+import { FindPostQueryDto } from './dto/find-post-query.dto';
 
 @Controller('post')
 export class PostController {
@@ -16,8 +18,8 @@ export class PostController {
     }
 
     @Get()
-    async findAll(@Query('search') search?: string): Promise<PostInterface[]> {
-        return this.postSerivce.findAll();
+    async findAll(@Query() findPostQueryDto: FindPostQueryDto): Promise<PaginatedResponse<PostInterface>> {
+        return this.postSerivce.findAll(findPostQueryDto);
     }
 
     @Get(":id")
