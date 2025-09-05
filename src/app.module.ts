@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { FileUploadModule } from './file-upload/file-upload.module';
+import { CloudinaryModule } from './file-upload/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -31,7 +33,10 @@ import { CacheModule } from '@nestjs/cache-manager';
       }),
     }),
     PostModule,
-    AuthModule],
+    AuthModule,
+    FileUploadModule,
+    CloudinaryModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

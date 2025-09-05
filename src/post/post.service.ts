@@ -24,8 +24,13 @@ export class PostService {
         const { page = 1, limit = 10, title } = query;
         return `post_list_page${page}_limit${limit}_title${title || 'all'}`
     }
-    private async invalidateAllExistingListCaches(){
 
+    private async invalidateAllExistingListCaches(): Promise<void> {
+        console.log(`Invalidating ${this.postListCacheKeys} list cache entries`);
+        for (const key of this.postListCacheKeys) {
+            await this.cacheManager.del(key as string);
+        }
+        this.postListCacheKeys.clear();
     }
 
     async findAll(query: FindPostQueryDto): Promise<PaginatedResponse<Post>> {
@@ -84,15 +89,16 @@ export class PostService {
         return post;
     }
 
-    create(createPostPayload: CreatePostDto, user: User): Promise<Post> {
+    async create(createPostPayload: CreatePostDto, user: User): Promise<Post> {
 
         //Invalidate The Cache
-        
+
         const newPost = this.postRepository.create({
             content: createPostPayload.content,
             title: createPostPayload.title,
             author: user
         })
+        await this.invalidateAllExistingListCaches()
         return this.postRepository.save(newPost);
     }
 
@@ -116,12 +122,16 @@ export class PostService {
         if (updatePostPayload.content) {
             exist.content = updatePostPayload.content;
         }
+        await this.cacheManager.del(`post_${id}`);
+        await this.invalidateAllExistingListCaches();
         return await this.postRepository.save(exist);
 
     }
 
     async remove(id: number) {
         const findPostToDelete = await this.findOne(id);
+        await this.cacheManager.del(`post_${id}`);
+        await this.invalidateAllExistingListCaches();
         return this.postRepository.remove(findPostToDelete);
     }
 }
