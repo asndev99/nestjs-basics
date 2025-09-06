@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { CloudinaryModule } from './file-upload/cloudinary/cloudinary.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { CloudinaryModule } from './file-upload/cloudinary/cloudinary.module';
     PostModule,
     AuthModule,
     FileUploadModule,
-    CloudinaryModule
+    CloudinaryModule,
+    EventsModule
   ],
   controllers: [AppController],
   providers: [AppService],
