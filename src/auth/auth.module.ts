@@ -9,9 +9,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { LoginThrottleGuard } from './guards/login-throttle.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { EventsModule } from 'src/events/events.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), PassportModule, JwtModule.register({}), ThrottlerModule.forRoot()],
+  imports: [TypeOrmModule.forFeature([User]), PassportModule, JwtModule.register({}), ThrottlerModule.forRoot(), EventsModule],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtAuthGuard, LoginThrottleGuard],
   exports: [AuthService]
